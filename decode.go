@@ -129,7 +129,7 @@ func (d *Decoder) mapKeyNodeToString(ctx context.Context, node ast.MapKeyNode) (
 	return fmt.Sprint(key), nil
 }
 
-func (d *Decoder) setToMapValue(ctx context.Context, node ast.Node, m map[string]interface{}) error {
+func (d *Decoder) setToMapValue(ctx context.Context, node ast.Node, m map[any]interface{}) error {
 	d.stepIn()
 	defer d.stepOut()
 	if d.isExceededMaxDepth() {
@@ -151,7 +151,7 @@ func (d *Decoder) setToMapValue(ctx context.Context, node ast.Node, m map[string
 				}
 			}
 		} else {
-			key, err := d.mapKeyNodeToString(ctx, n.Key)
+			key, err := d.nodeToValue(ctx, n.Key)
 			if err != nil {
 				return err
 			}
@@ -484,7 +484,7 @@ func (d *Decoder) nodeToValue(ctx context.Context, node ast.Node) (any, error) {
 				}
 				return m, nil
 			}
-			m := make(map[string]any)
+			m := make(map[any]any)
 			for iter.Next() {
 				if err := d.setToMapValue(ctx, iter.KeyValue(), m); err != nil {
 					return nil, err
@@ -518,7 +518,7 @@ func (d *Decoder) nodeToValue(ctx context.Context, node ast.Node) (any, error) {
 			}
 			return m, nil
 		}
-		m := make(map[string]interface{}, len(n.Values))
+		m := make(map[any]interface{}, len(n.Values))
 		for _, value := range n.Values {
 			if err := d.setToMapValue(ctx, value, m); err != nil {
 				return nil, err
